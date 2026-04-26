@@ -1,43 +1,53 @@
-import { useState } from "react";
-import { useQuery } from "convex/react";
-import { createRootRoute } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { Button } from "@/components/ui/button";
-import { api } from "../../convex/_generated/api";
+import { Bookmark } from "lucide-react";
 
 export const Route = createRootRoute({
   component: RootLayout,
+  notFoundComponent: NotFound,
 });
 
 function RootLayout() {
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const greeting = useQuery(api.hello.greet, shouldFetch ? {} : "skip");
+  const { signIn, signOut } = useAuthActions();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/70 bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
-          <p className="text-2xl font-semibold tracking-tight">Hello App</p>
-          <p className="text-sm text-muted-foreground">Minimal Scaffold</p>
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+          <Link to="/" className="flex items-center gap-2 text-lg font-semibold">
+            <Bookmark className="h-5 w-5" />
+            Bookmarks
+          </Link>
+          <AuthLoading><span /></AuthLoading>
+          <Unauthenticated>
+            <Button size="sm" onClick={() => signIn("github")}>
+              Sign in with GitHub
+            </Button>
+          </Unauthenticated>
+          <Authenticated>
+            <Button variant="outline" size="sm" onClick={() => signOut()}>
+              Sign out
+            </Button>
+          </Authenticated>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-xl flex-col items-start gap-4 rounded-xl border border-border/70 bg-card p-6">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            Hello world.
-          </h1>
-          <p className="text-muted-foreground">
-            Click the button to call the backend hello query.
-          </p>
-          <Button type="button" onClick={() => setShouldFetch(true)}>
-            Run hello query
-          </Button>
-          {shouldFetch ? (
-            <p className="text-sm text-muted-foreground">
-              Result: {greeting ?? "Loading..."}
-            </p>
-          ) : null}
-        </div>
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        <Outlet />
       </main>
+    </div>
+  );
+}
+
+function NotFound() {
+  return (
+    <div className="py-20 text-center">
+      <p className="text-2xl font-semibold">Page not found</p>
+      <p className="mt-2 text-muted-foreground">This page doesn't exist.</p>
+      <Link to="/" className="mt-4 inline-block text-sm underline">
+        Go home
+      </Link>
     </div>
   );
 }
