@@ -6,7 +6,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/hw6-kmukher6-1/",
+  base: "/hw6-kmukher6/",
   plugins: [tanstackRouter(), react(), tailwindcss()],
   resolve: {
     alias: {
